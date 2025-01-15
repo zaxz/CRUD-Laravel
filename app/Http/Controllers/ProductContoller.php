@@ -7,9 +7,6 @@ use Illuminate\Http\Request;
 
 class ProductContoller extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(){
         $products = Product::all();
         return view('product.index', compact('products'));
@@ -23,44 +20,61 @@ class ProductContoller extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'gambar'    => 'required|image|mimes:jpeg,jpg,png|max:2048',
-            'nama'      => 'required',
-            'deskripsi' => 'required',
-            'harga'     => 'required|numeric',
-            'stock'     => 'required|numeric'
+            'gambarBrg'    => 'required|image|mimes:jpeg,jpg,png|max:2048',
+            'namaBrg'      => 'required',
+            'deskripsiBrg' => 'required',
+            'hargaBrg'     => 'required|numeric|',
+            'stokBrg'      => 'required|numeric|'
         ]);
 
-        $gambar = $request->file('gambar');
-        $gambar->storeAs('public/storage/img', $gambar->hashName());
-
+        if($request->hasFile('gambarBrg')){
+            $gambar = $request->file('gambarBrg')->getClientOriginalName();            
+            $request->file('gambarBrg')->move(public_path('storage/img'), $gambar);
+        }
         Product::create([
-            'gambar'    => $gambar->hashName(),
-            'nama'      => $request->nama,
-            'deskripsi' => $request->deskripsi,
-            'harga'     => $request->harga,
-            'stock'     => $request->stock
+            'gambar'        => $gambar,
+            'nama'          => $request->namaBrg,
+            'deskripsi'     => $request->deskripsiBrg,
+            'harga_jual'    => $request->hargaBrg,
+            'stok'          => $request->stokBrg
         ]);
 
-        return redirect()->route('product.index')->with(['success' => 'Data Berhasil Disimpan']);
+        return redirect()->route('product.index')->with('success','Produk Berhasil Ditambahkan!');
     }
 
-    public function show(string $id)
+    public function edit($id)
     {
-        //
+        $products = Product::find($id);
+        return view('product.edit', compact('products'));
     }
 
-    public function edit(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $products = Product::findOrFail($id);
+
+        $request->validate([
+            'gambarBrg'    => 'required|image|mimes:jpeg,jpg,png|max:2048',
+            'namaBrg'      => 'required',
+            'deskripsiBrg' => 'required',
+            'hargaBrg'     => 'required|numeric|',
+            'stokBrg'      => 'required|numeric|'
+        ]);
+
+        $products->update([
+            'gambar'        => $request->gambarBrg,
+            'nama'          => $request->namaBrg,
+            'deskripsi'     => $request->deskripsiBrg,
+            'harga_jual'    => $request->hargaBrg,
+            'stok'          => $request->stokBrg
+        ]);
+        
+        return redirect()->route('product.index')->with('success','Produk Berhasil Disimpan!');
     }
 
-    public function update(Request $request, string $id)
+    public function destroy($id)
     {
-        //
-    }
-
-    public function destroy(string $id)
-    {
-        //
+        $products = Product::findOrFail($id);
+        $products->delete();
+        return redirect()->route('product.index')->with('success', 'Produk Berhasil Dihapus!');
     }
 }

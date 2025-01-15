@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('gambar');
             $table->string('nama');
-            $table->bigInteger('harga');
+            $table->bigInteger('harga_jual');
             $table->text('deskripsi');
-            $table->integer('stock')->default(0);
+            $table->integer('stok')->default(0);
             $table->timestamps();
         });
     }
